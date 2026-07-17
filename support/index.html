@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Setup &amp; Support — Sentry Bridge for Jira — Quietstack</title>
+<meta name="description" content="Set up Sentry Bridge for Jira in under five minutes, plus troubleshooting and honest limits.">
+<link rel="icon" href="icon.png">
+<style>
+  :root{--bg:#0E1016;--panel:#161A24;--line:#242B3A;--text:#E7EAF2;--muted:#98A2B8;--accent:#8B5CF6;--accent2:#2684FF}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:16px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:760px;margin:0 auto;padding:0 24px}
+  .brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;padding:32px 0}
+  .brand img{width:34px;height:34px;border-radius:9px}
+  .brand b{font-size:17px}
+  h1{font-size:32px;letter-spacing:-.02em;margin:16px 0 24px}
+  h2{font-size:20px;letter-spacing:-.01em;margin:40px 0 12px;padding-top:22px;border-top:1px solid var(--line)}
+  h3{font-size:16px;margin:22px 0 8px}
+  p,li,td{color:#C6CCDA}
+  ul,ol{padding-left:22px}
+  li{margin:6px 0}
+  a{color:var(--accent2)}
+  strong{color:var(--text)}
+  code{background:var(--panel);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:13px}
+  .tablewrap{overflow-x:auto;margin:18px 0}
+  table{border-collapse:collapse;width:100%;min-width:520px;font-size:15px}
+  th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--text);font-size:13px;text-transform:uppercase;letter-spacing:.04em}
+  .steps{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px 24px;margin:20px 0}
+  .q{color:var(--text);font-weight:600;margin:22px 0 4px}
+  footer{border-top:1px solid var(--line);margin-top:52px;padding:26px 0 60px;color:var(--muted);font-size:14px}
+  footer a{color:var(--muted);margin-right:18px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <a class="brand" href="/"><img src="icon.png" alt=""><b>Quietstack</b></a>
+
+  <h1>Sentry Bridge for Jira — setup &amp; support</h1>
+
+  <h2>Set up in under five minutes</h2>
+
+  <div class="steps">
+    <h3>1. In Jira</h3>
+    <p>Open the project you want errors filed in →
+    <strong>Project settings → Apps → Sentry Bridge</strong>.</p>
+    <ul>
+      <li>Turn <strong>Enabled</strong> on.</li>
+      <li><strong>Issue type</strong> — the app pre-selects a Bug-like type, or a Task if your
+      project has no Bug.</li>
+      <li><strong>Minimum level</strong> — <code>error</code> is a sensible default;
+      <code>warning</code> if you want more.</li>
+      <li><strong>Environments</strong> — comma separated, e.g. <code>production, staging</code>.
+      Leave empty for all.</li>
+      <li><strong>Shared secret</strong> — any random string. Recommended: it stops anyone who
+      guesses your webhook URL from filing issues in your project.</li>
+      <li>Press <strong>Save</strong>, then copy the <strong>Webhook URL</strong> at the bottom. It
+      already contains your project key and secret.</li>
+    </ul>
+
+    <h3>2. In Sentry</h3>
+    <p><strong>Settings → Developer Settings → Custom Integrations → Create New Integration →
+    Internal Integration.</strong></p>
+    <ul>
+      <li><strong>Name</strong>: anything, e.g. <code>Sentry Bridge for Jira</code></li>
+      <li><strong>Webhook URL</strong>: paste the URL from step 1</li>
+      <li><strong>Permissions → Issue &amp; Event</strong>: set to <strong>Read</strong></li>
+      <li><strong>Webhooks → Issues</strong>: tick <strong>Created</strong> and
+      <strong>Resolved</strong></li>
+      <li><strong>Save Changes</strong></li>
+    </ul>
+
+    <h3>3. Prove it works</h3>
+    <p>Back in Jira, press <strong>Send test event</strong>. You should see
+    <em>“Works. Created PROJ-123”</em>. Open that issue, look at it, delete it. You are done.</p>
+  </div>
+
+  <h2>How it behaves</h2>
+  <div class="tablewrap">
+  <table>
+    <tr><th>Situation</th><th>What happens</th></tr>
+    <tr>
+      <td>New error in Sentry</td>
+      <td>A Jira issue is created with culprit, level, environment, event count, first-seen time and
+      a link to Sentry (plus the stack trace, if your plan allows the <code>error</code> webhook —
+      see Limits)</td>
+    </tr>
+    <tr>
+      <td>Same error fires again, issue still open</td>
+      <td>A comment is added with the current event count</td>
+    </tr>
+    <tr>
+      <td>Same error fires again, issue was closed</td>
+      <td>The issue is <strong>reopened</strong> into your chosen status and a regression comment is
+      added</td>
+    </tr>
+    <tr>
+      <td>Error resolved in Sentry</td>
+      <td>The Jira issue moves to your chosen status (if you set one)</td>
+    </tr>
+    <tr>
+      <td>Error below your minimum level, or in an environment you didn’t list</td>
+      <td>Ignored</td>
+    </tr>
+  </table>
+  </div>
+
+  <h2>Settings reference</h2>
+  <ul>
+    <li><strong>Move issue to this status when resolved in Sentry</strong> — type the status name
+    exactly as it appears on your board. The settings screen lists your project’s statuses under the
+    field. Leave empty to do nothing.</li>
+    <li><strong>Reopen closed issues on regression</strong> + <strong>Status to reopen into</strong>
+    — what to do when a closed issue’s error comes back.</li>
+    <li><strong>Comment when the error recurs</strong> — comment on an open issue instead of staying
+    silent.</li>
+    <li><strong>Map Sentry level to Jira priority</strong> — fatal → Highest, error → High, warning
+    → Medium. If your project doesn’t have those priority names, the app creates the issue without a
+    priority rather than failing.</li>
+  </ul>
+
+  <h2>Troubleshooting</h2>
+
+  <p class="q">Nothing arrives in Jira.</p>
+  <ol>
+    <li>Is <strong>Enabled</strong> on and did you press <strong>Save</strong>?</li>
+    <li>Press <strong>Send test event</strong>. If that works, Jira is fine and the problem is on
+    the Sentry side.</li>
+    <li>In Sentry, is the webhook URL exactly the one from the settings screen, including the
+    <code>?project=</code> and <code>&amp;secret=</code> parts?</li>
+    <li>In Sentry, is <strong>Issue &amp; Event</strong> permission set to <strong>Read</strong> and
+    is <strong>Issues → Created</strong> ticked?</li>
+    <li>Is your error above the <strong>Minimum level</strong>, and is its environment in your
+    <strong>Environments</strong> list?</li>
+  </ol>
+
+  <p class="q">“Send test event” says the bridge replied 401.</p>
+  <p>The secret in the webhook URL doesn’t match the one saved in settings. Press
+  <strong>Save</strong>, then copy the webhook URL again — it’s regenerated with the current
+  secret.</p>
+
+  <p class="q">Issues are created but the status never changes when I resolve in Sentry.</p>
+  <p>The status name must match exactly. Check the list of statuses printed under the field. Also
+  make sure <strong>Issues → Resolved</strong> is ticked in your Sentry webhook settings.</p>
+
+  <p class="q">Duplicate issues.</p>
+  <p>Shouldn’t happen — one Sentry issue maps to one Jira issue for the life of the installation. If
+  you see duplicates, the two errors are different Sentry issues; Sentry decides grouping, not us.</p>
+
+  <h2>Limits</h2>
+  <ul>
+    <li><strong>Stack traces depend on your Sentry plan.</strong> Sentry’s <code>issue.created</code>
+    webhook — the one every plan can use — carries the culprit, level, environment, event count and
+    permalink, but <strong>not</strong> the exception or stack frames. If your plan lets you
+    subscribe to the <strong>Errors → Created</strong> webhook resource, the app also puts the
+    exception type, message and top stack frames into the issue. Either way the “Open in Sentry”
+    link takes you straight to the full trace.</li>
+    <li>One Jira project per webhook URL. Want several Sentry projects in different Jira projects?
+    Configure the app in each Jira project and use each one’s own webhook URL in the matching Sentry
+    integration.</li>
+    <li>The app does not write back to Sentry (it has no network egress at all). Resolving a Jira
+    issue does not resolve the Sentry issue.</li>
+  </ul>
+
+  <h2>Support</h2>
+  <p>Email <a href="mailto:support@quietstack.app">support@quietstack.app</a>. Include your Jira
+  site URL and the issue key or time of the problem — it makes diagnosis much faster.</p>
+
+  <footer>
+    <a href="/">Home</a>
+    <a href="/privacy">Privacy</a>
+    <span>© 2026 Quietstack</span>
+  </footer>
+
+</div>
+</body>
+</html>

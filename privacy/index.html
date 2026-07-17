@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy — Sentry Bridge for Jira — Quietstack</title>
+<meta name="description" content="What Sentry Bridge for Jira does with data. It is short, because the app does very little with data.">
+<link rel="icon" href="icon.png">
+<style>
+  :root{--bg:#0E1016;--panel:#161A24;--line:#242B3A;--text:#E7EAF2;--muted:#98A2B8;--accent:#8B5CF6;--accent2:#2684FF}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:16px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:720px;margin:0 auto;padding:0 24px}
+  .brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;padding:32px 0}
+  .brand img{width:34px;height:34px;border-radius:9px}
+  .brand b{font-size:17px}
+  h1{font-size:32px;letter-spacing:-.02em;margin:16px 0 6px}
+  .date{color:var(--muted);margin:0 0 32px;font-size:14px}
+  h2{font-size:19px;letter-spacing:-.01em;margin:36px 0 10px;padding-top:20px;border-top:1px solid var(--line)}
+  p,li{color:#C6CCDA}
+  ul,ol{padding-left:22px}
+  li{margin:6px 0}
+  a{color:var(--accent2)}
+  strong{color:var(--text)}
+  code{background:var(--panel);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:13px}
+  .note{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:24px 0}
+  footer{border-top:1px solid var(--line);margin-top:52px;padding:26px 0 60px;color:var(--muted);font-size:14px}
+  footer a{color:var(--muted);margin-right:18px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <a class="brand" href="/"><img src="icon.png" alt=""><b>Quietstack</b></a>
+
+  <h1>Privacy Policy</h1>
+  <p class="date">Sentry Bridge for Jira · last updated 16 July 2026</p>
+
+  <p>This policy explains what Sentry Bridge for Jira (“the app”) does with data. It is short
+  because the app does very little with data.</p>
+
+  <h2>Where the app runs</h2>
+  <p>The app runs entirely on <strong>Atlassian Forge</strong>, Atlassian’s hosted platform, inside
+  Atlassian’s infrastructure. There is no server operated by us. Your data is not sent to any third
+  party, and it is not sent to us.</p>
+
+  <h2>What the app receives</h2>
+  <p><strong>From Sentry.</strong> When you configure a webhook in your own Sentry organisation
+  pointing at your app’s URL, Sentry sends the app an event payload. It contains: the Sentry issue
+  id, title, culprit, level, environment, project slug, event count, first-seen timestamp, a
+  permalink, and — for error events — the exception type, message and stack frames.</p>
+  <p><strong>From Jira.</strong> The app reads your project’s issue types and statuses so it can
+  offer them in the settings screen, and reads an issue’s status when deciding whether to reopen
+  it.</p>
+
+  <h2>What the app stores</h2>
+  <p>Inside Atlassian’s own storage, scoped to your installation:</p>
+  <ol>
+    <li><strong>Your settings</strong> — the target issue type, minimum level, environment filter,
+    labels, resolve and reopen statuses, feature toggles, and your shared secret.</li>
+    <li><strong>A link table</strong> — for each Sentry issue the app has handled: the Sentry issue
+    id, the Jira issue key it created, the project key, the Sentry permalink, and the time it was
+    created. This is what makes de-duplication and regression reopening possible.</li>
+  </ol>
+  <p>Nothing else is stored. There is no analytics, no telemetry, no profiling, and no tracking of
+  your users.</p>
+
+  <h2>What the app writes</h2>
+  <p>Jira issues and comments in the project you configured, as the app user. Content comes from
+  the Sentry payload you sent it.</p>
+
+  <h2>Personal data</h2>
+  <p>The app does not intentionally collect personal data. It does not read Jira users, customers,
+  or customer data.</p>
+  <div class="note">
+    <p style="margin:0">Sentry error payloads may contain personal data <strong>if your own
+    application put it there</strong> — for example a username in an exception message or a stack
+    frame variable. The app copies the payload fields listed above into the Jira issue description.
+    If your Sentry events contain personal data and you do not want it in Jira, strip or scrub it in
+    Sentry before it reaches the webhook — Sentry supports server-side data scrubbing.</p>
+  </div>
+
+  <h2>Data retention and deletion</h2>
+  <p>Settings and link records live for as long as the app is installed.
+  <strong>Uninstalling the app removes its storage.</strong> Jira issues the app already created
+  are yours and stay in your Jira.</p>
+
+  <h2>Sub-processors</h2>
+  <p>None. The app makes no outbound network calls. It has no egress permissions in its manifest —
+  you can verify this on the app’s permission screen at install time.</p>
+
+  <h2>Security</h2>
+  <ul>
+    <li>The webhook endpoint can be protected with a shared secret you set; requests without it are
+    rejected with <code>401</code>.</li>
+    <li>The app requests only: read/write Jira work items, read Jira users, and app storage.</li>
+    <li>All processing happens within Atlassian Forge.</li>
+  </ul>
+
+  <h2>Changes</h2>
+  <p>Material changes to this policy will be published here with a new date.</p>
+
+  <h2>Contact</h2>
+  <p>Questions about this policy: <a href="mailto:privacy@quietstack.app">privacy@quietstack.app</a><br>
+  Security reports: <a href="mailto:security@quietstack.app">security@quietstack.app</a></p>
+
+  <footer>
+    <a href="/">Home</a>
+    <a href="/support">Support</a>
+    <span>© 2026 Quietstack</span>
+  </footer>
+
+</div>
+</body>
+</html>
