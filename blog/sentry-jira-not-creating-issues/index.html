@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why Sentry isn't creating Jira issues automatically (and how to fix it)</title>
+<meta name="description" content="Sentry has a Jira integration, but it only auto-creates issues on Business and Enterprise plans, and the official Marketplace app is rated ~2.5★. Here's exactly why, and the options to get errors into Jira automatically on any plan.">
+<link rel="canonical" href="https://quietstack.app/blog/sentry-jira-not-creating-issues/">
+<link rel="icon" href="/icon.png">
+<meta property="og:title" content="Why Sentry isn't creating Jira issues automatically (and how to fix it)">
+<meta property="og:description" content="It's not you. Auto-creation is gated to paid Sentry plans and the official app is rated ~2.5★. Here are the real options.">
+<meta property="og:type" content="article">
+<style>
+  :root{--bg:#0E1016;--panel:#161A24;--line:#242B3A;--text:#E7EAF2;--muted:#98A2B8;--accent:#8B5CF6;--accent2:#2684FF}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:17px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:720px;margin:0 auto;padding:0 24px}
+  a{color:var(--accent2)}
+  .brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;padding:28px 0}
+  .brand img{width:32px;height:32px;border-radius:9px}
+  .brand b{font-size:16px}
+  h1{font-size:34px;line-height:1.2;letter-spacing:-.02em;margin:16px 0 10px}
+  .date{color:var(--muted);font-size:14px;margin:0 0 32px}
+  h2{font-size:23px;letter-spacing:-.01em;margin:44px 0 12px}
+  h3{font-size:18px;margin:28px 0 6px}
+  p,li{color:#C6CCDA}
+  code{background:var(--panel);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:14px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:22px 0}
+  blockquote{border-left:3px solid var(--accent);margin:22px 0;padding:2px 18px;color:var(--muted)}
+  .cta{background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:12px;padding:22px 24px;margin:36px 0 8px;color:#fff}
+  .cta a{color:#fff;font-weight:600}
+  footer{border-top:1px solid var(--line);margin-top:52px;padding:26px 0 64px;color:var(--muted);font-size:14px}
+  footer a{color:var(--muted);margin-right:18px}
+  @media(max-width:600px){h1{font-size:27px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <a class="brand" href="/"><img src="/icon.png" alt=""><b>Quietstack</b></a>
+
+  <h1>Why Sentry isn't creating Jira issues automatically (and how to fix it)</h1>
+  <p class="date">Setup guide · updated July 2026</p>
+
+  <p>
+    You connected Sentry to Jira, expected new errors to show up as tickets, and… nothing happens. Errors
+    keep piling up in Sentry, the backlog stays empty, and you're stuck copy-pasting. If you searched
+    <em>"Sentry not creating Jira issues"</em> to find out whether you misconfigured something — mostly, you didn't.
+    Here's what's actually going on.
+  </p>
+
+  <h2>1. Auto-creation is gated behind paid Sentry plans</h2>
+  <p>
+    Sentry's native Jira integration can create issues from an alert rule — you add a
+    <em>Create a new Jira issue</em> action to an Issue Alert. But there's a catch buried in the docs:
+    <strong>automatic issue creation is only available on Business and Enterprise plans.</strong> On the
+    Free and Team plans you can link an issue to Jira by hand from the Sentry UI, but errors won't turn
+    into tickets on their own.
+  </p>
+  <div class="panel">
+    <p style="margin:0"><strong>Quick check:</strong> if your "Create a Jira issue" alert action doesn't fire, and you're on Free or Team, that's why. It's a plan limit, not a misconfiguration.</p>
+  </div>
+
+  <h2>2. The official Marketplace app has a rough reputation</h2>
+  <p>
+    Separately from the native integration, there's an official <em>Sentry for Jira</em> app on the Atlassian
+    Marketplace. At the time of writing it sits at roughly <strong>2.5★ across ~100 reviews</strong>. The
+    recurring complaints are consistent: the configuration screen fails to load, and issues silently don't
+    get created even after setup looks complete. If you installed that and nothing happened, you're not alone.
+  </p>
+
+  <h2>3. Even when it works, regressions fall through</h2>
+  <p>
+    The part almost every setup misses: you fix the bug, close the Jira ticket, and three weeks later the
+    same error resurfaces in Sentry. Nothing reopens the ticket. The regression just sits in Sentry
+    unnoticed until someone happens to look.
+  </p>
+
+  <h2>What are your options?</h2>
+
+  <h3>Option A — Upgrade your Sentry plan</h3>
+  <p>
+    Moving to Business unlocks native auto-creation. If you're already heading there for other reasons,
+    it's the least-effort path. If you're upgrading <em>only</em> to get issues into Jira, it's an expensive
+    way to solve one workflow — Business pricing is per-org and adds up fast next to the actual need.
+  </p>
+
+  <h3>Option B — Build it yourself on a webhook</h3>
+  <p>
+    Every Sentry plan can send the <code>issue</code> webhook. You can point it at a small service that
+    creates a Jira issue via the Jira REST API. This works, but you're now maintaining a server, handling
+    deduplication (so one error doesn't spawn a thousand tickets), mapping statuses, and dealing with
+    regressions yourself. It's a weekend project that becomes a thing you own forever.
+  </p>
+
+  <h3>Option C — Use a purpose-built bridge</h3>
+  <p>
+    This is the gap we built <a href="/sentry-bridge/">Sentry Bridge for Jira</a> to fill. It listens on
+    the <code>issue</code> webhook — available on <strong>any</strong> Sentry plan — and turns each error into
+    a Jira issue with the culprit, level, environment, event count and a link back to Sentry. It deduplicates
+    (one issue per error, no floods), and when a closed issue's error comes back it <strong>reopens the ticket
+    and comments with the current event count</strong>. It runs entirely inside Atlassian as a Forge app —
+    no servers of yours, no data leaving your tenant.
+  </p>
+
+  <blockquote>
+    We're deliberate about limits: the <code>issue.created</code> webhook every plan can use carries the
+    facts (culprit, level, environment, count, permalink) but not the stack trace. If your plan allows the
+    <em>Errors</em> webhook resource, the exception and top frames come through too. Either way the
+    "Open in Sentry" link goes straight to the full trace. We'd rather say that up front than surprise you.
+  </blockquote>
+
+  <div class="cta">
+    <p style="margin:0 0 6px"><strong>Get errors into Jira on any Sentry plan.</strong></p>
+    <p style="margin:0">Sentry Bridge for Jira is in final review on the Atlassian Marketplace.
+    <a href="/sentry-bridge/">See how it works →</a> or email <a href="mailto:support@quietstack.app?subject=Notify%20me%20when%20Sentry%20Bridge%20is%20live">support@quietstack.app</a> and we'll ping you at launch.</p>
+  </div>
+
+  <footer>
+    <a href="/">Home</a>
+    <a href="/sentry-bridge/">Sentry Bridge</a>
+    <a href="/support">Support</a>
+    <span>© 2026 Quietstack</span>
+  </footer>
+
+</div>
+</body>
+</html>
